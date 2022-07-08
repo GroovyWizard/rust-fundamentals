@@ -1,5 +1,6 @@
-use std::{io::stdin};
+use std::io::stdin;
 
+#[derive(Debug)]
 struct SpaceMarine {
     name: String,
     faction: String,
@@ -26,28 +27,40 @@ fn request_warrior_name() -> String {
     input_name.trim().to_lowercase()
 }
 
-fn validate_marine(name: String) {
-    let space_marines_list: [SpaceMarine; 4] = [
+fn validate_marine(name: String) -> bool {
+    let mut space_marines_list: Vec<SpaceMarine> = vec![
         SpaceMarine::new("noron", "space wolves"),
         SpaceMarine::new("olaf", "space wolves"),
         SpaceMarine::new("luciun", "black templars"),
         SpaceMarine::new("nostrum", "space marines"),
     ];
     let approved_marine = &space_marines_list.iter().find(|marine| marine.name == name);
-   
+
     match approved_marine {
-        Some(marine) => marine.greet_marine(),
+        Some(marine) => {
+            marine.greet_marine();
+            return true;
+        }
         None => {
-            println!("Get off Heretic, you are not allowed! General, put {} in the blacklist!", name)
+            if name.is_empty() {
+                println!(
+                    "Get off Heretic, you are not allowed! General, he refuses to say his name!",
+                );
+                return false;
+            } else {
+                println!("{} is not on the marine list, but he looks rather strong and i want him in the crew, welcome {}" , name, name);
+                space_marines_list.push(SpaceMarine::new(&name, "space marine"));
+                return true;
+            }
         }
     }
 }
 
 fn main() {
-    println!("What's your name Warrior?");
-    let user_name: String = request_warrior_name();
-    validate_marine(user_name);
-    
-  
-    
+    let mut continue_asking: bool = true;
+    while continue_asking {
+        println!("What's your name Warrior?");
+        let user_name: String = request_warrior_name();
+        continue_asking = validate_marine(user_name);
+    }
 }
